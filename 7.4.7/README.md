@@ -15,8 +15,7 @@ Ubuntu/Deepin安装脚本：
 
 Fedora安装命令:：
 
-<pre><code class="language-bash">wget -O install.sh
-https://raw.githubusercontent.com/cq520/bt/master/7.4.7/pro/install/install_6.0.sh  && bash install.sh</code></pre>
+<pre><code class="language-bash">wget -O install.sh https://raw.githubusercontent.com/cq520/bt/master/7.4.7/pro/install/install_6.0.sh  && bash install.sh</code></pre>
 
 Linux面板7.4.7升级命令：
 
@@ -38,8 +37,7 @@ Ubuntu/Deepin安装脚本：
 
 Fedora安装命令:
 
-<pre><code class="language-bash">wget -O install.sh
-https://raw.githubusercontent.com/cq520/bt/master/7.4.7/ltd/install/install_6.0.sh  && bash install.sh</code></pre>
+<pre><code class="language-bash">wget -O install.sh https://raw.githubusercontent.com/cq520/bt/master/7.4.7/ltd/install/install_6.0.sh  && bash install.sh</code></pre>
 
 Linux面板7.4.7升级命令：
 
