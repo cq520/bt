@@ -102,6 +102,7 @@ chattr -i /etc/init.d/bt
 chmod +x /etc/init.d/bt
 echo "====================================="
 rm -f /dev/shm/bt_sql_tips.pl
+rm -f /www/server/panel/data/plugin.json
 kill $(ps aux|grep -E "task.pyc|main.py"|grep -v grep|awk '{print $2}')
 /etc/init.d/bt start
 echo 'True' > /www/server/panel/data/restart.pl
