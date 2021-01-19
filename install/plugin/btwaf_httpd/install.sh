@@ -9,7 +9,7 @@ if [ ! -f $public_file ];then
 fi
 
 . $public_file
-download_Url=http://hmqiu.cn
+download_Url=http://raw.githubusercontent.com/cq520/bt/master
 pluginPath=/www/server/panel/plugin/btwaf_httpd
 
 pyVersion=$(python -c 'import sys;print(sys.version_info[0]);')

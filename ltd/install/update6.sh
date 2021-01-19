@@ -39,7 +39,7 @@ fi
 version=$(awk -v  versions=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version) -v num2=7.5.32 'BEGIN{print(versions>num2)?"7.5.33":"7.4.8"}')
 
 download_Url=$NODE_URL
-downloads_Url=https://hmqiu.cn/ltd
+downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
 setup_path=/www
 
 
