@@ -173,7 +173,7 @@ get_node_url(){
 	rm -f $tmp_file1
 	rm -f $tmp_file2
 	download_Url=$NODE_URL
-	downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
+	downloads_Url=https://hmqiu.cn/ltd
 	echo "Download node: $download_Url";
 	echo '---------------------------------------------';
 }
@@ -309,6 +309,8 @@ Install_Bt(){
 			rm -rf ${setup_path}/server/panel/old_data
 		fi
 		mkdir -p ${setup_path}/server/panel/old_data
+		d_format=$(date +"%Y%m%d_%H%M%S")
+		\cp -arf ${setup_path}/server/panel/data/default.db ${setup_path}/server/panel/data/default_backup_${d_format}.db
 		mv -f ${setup_path}/server/panel/data/default.db ${setup_path}/server/panel/old_data/default.db
 		mv -f ${setup_path}/server/panel/data/system.db ${setup_path}/server/panel/old_data/system.db
 		mv -f ${setup_path}/server/panel/data/port.pl ${setup_path}/server/panel/old_data/port.pl
@@ -343,23 +345,27 @@ Install_Bt(){
 	echo "${panelPort}" > ${setup_path}/server/panel/data/port.pl
 	wget -O /etc/init.d/bt ${download_Url}/install/src/bt7.init -T 10
 	wget -O /www/server/panel/init.sh ${download_Url}/install/src/bt7.init -T 10
-	sed -i 's/[0-9\.]\+[ ]\+www.bt.cn//g' /etc/hosts
 }
 
 Install_Python_Lib(){
 	curl -Ss --connect-timeout 3 -m 60 $download_Url/install/pip_select.sh|bash
 	pyenv_path="/www/server/panel"
 	if [ -f $pyenv_path/pyenv/bin/python ];then
-		chmod -R 700 $pyenv_path/pyenv/bin
-		is_package=$($python_bin -m psutil 2>&1|grep package)
-		if [ "$is_package" = "" ];then
-			wget -O $pyenv_path/pyenv/pip.txt $download_Url/install/pyenv/pip.txt -T 5
-			$pyenv_path/pyenv/bin/pip install -U pip
-			$pyenv_path/pyenv/bin/pip install -U setuptools
-			$pyenv_path/pyenv/bin/pip install -r $pyenv_path/pyenv/pip.txt
+		is_err=$($pyenv_path/pyenv/bin/python3.7 -V 2>&1|grep 'Could not find platform')
+		if [ "$is_err" = "" ];then
+			chmod -R 700 $pyenv_path/pyenv/bin
+			is_package=$($python_bin -m psutil 2>&1|grep package)
+			if [ "$is_package" = "" ];then
+				wget -O $pyenv_path/pyenv/pip.txt $download_Url/install/pyenv/pip.txt -T 5
+				$pyenv_path/pyenv/bin/pip install -U pip
+				$pyenv_path/pyenv/bin/pip install -U setuptools
+				$pyenv_path/pyenv/bin/pip install -r $pyenv_path/pyenv/pip.txt
+			fi
+			source $pyenv_path/pyenv/bin/activate
+			return
+		else
+			rm -rf $pyenv_path/pyenv
 		fi
-		source $pyenv_path/pyenv/bin/activate
-		return
 	fi
 	py_version="3.7.8"
 	mkdir -p $pyenv_path
@@ -389,11 +395,17 @@ Install_Python_Lib(){
 				rm -f $pyenv_file
 				Red_Error "ERROR: Install python env fielded."
 			fi
-			rm -f $pyenv_file
-			ln -sf $pyenv_path/pyenv/bin/pip3.7 /usr/bin/btpip
-			ln -sf $pyenv_path/pyenv/bin/python3.7 /usr/bin/btpython
-			source $pyenv_path/pyenv/bin/activate
-			return
+			is_err=$($pyenv_path/pyenv/bin/python3.7 -V 2>&1|grep 'Could not find platform')
+			if [ "$is_err" = "" ];then
+				rm -f $pyenv_file
+				ln -sf $pyenv_path/pyenv/bin/pip3.7 /usr/bin/btpip
+				ln -sf $pyenv_path/pyenv/bin/python3.7 /usr/bin/btpython
+				source $pyenv_path/pyenv/bin/activate
+				return
+			else
+				rm -f $pyenv_file
+				rm -rf $pyenv_path/pyenv
+			fi
 		fi
 		
 	fi

@@ -1,4 +1,5 @@
 #!/bin/bash
+awk -v  num1=6.6 -v num2=5.5  'BEGIN{print(num1>num2)?"0":"1"}'
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 LANG=en_US.UTF-8
@@ -35,14 +36,14 @@ env_path=/www/server/panel/pyenv/bin/activate
 if [ -f $env_path ];then
 	mypip="/www/server/panel/pyenv/bin/pip"
 fi
+version=$(awk -v  versions=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version) -v num2=7.5.32 'BEGIN{print(versions>num2)?"7.5.33":"7.4.8"}')
 
 download_Url=$NODE_URL
-downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
+downloads_Url=https://hmqiu.cn/ltd
 setup_path=/www
-version=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version)
-if [ "$version" = '' ];then
-	version='7.4.5'
-fi
+
+
+
 
 wget -T 5 -O /tmp/panel.zip $downloads_Url/install/update/LinuxPanel-${version}.zip
 dsize=$(du -b /tmp/panel.zip|awk '{print $1}')
@@ -102,7 +103,6 @@ chattr -i /etc/init.d/bt
 chmod +x /etc/init.d/bt
 echo "====================================="
 rm -f /dev/shm/bt_sql_tips.pl
-rm -f /www/server/panel/data/plugin.json
 kill $(ps aux|grep -E "task.pyc|main.py"|grep -v grep|awk '{print $2}')
 /etc/init.d/bt start
 echo 'True' > /www/server/panel/data/restart.pl
