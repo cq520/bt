@@ -37,81 +37,50 @@ Install()
   mkdir -p $pluginPath
   mkdir -p $pluginPath/crontab_tasks
   mkdir -p $pluginPath/config
+  rm -f $pluginPath/*.so
   \mv -f /www/server/panel/data/enterprise_backup_config/* $pluginPath/config
 
   echo > $pluginPath/enterprise_backup_main.py
   echo '正在安装脚本文件...' > $install_tmp
   if [  -f /www/server/panel/pyenv/bin/python ];then
-    /www/server/panel/pyenv/bin/pip install oss2
-    /www/server/panel/pyenv/bin/pip install qiniu
-    /www/server/panel/pyenv/bin/pip install cos-python-sdk-v5
-    /www/server/panel/pyenv/bin/pip install boto3
-    wget -O $pluginPath/enterprise_backup_main.so $download_Url/install/plugin/enterprise_backup/build/enterprise_backup_main.cpython-37m-x86_64-linux-gnu.so -T 5
-    wget -O $pluginPath/backup_task.so $download_Url/install/plugin/enterprise_backup/build/backup_task.cpython-37m-x86_64-linux-gnu.so -T 5
-    wget -O $pluginPath/upload_ftp.so $download_Url/install/plugin/enterprise_backup/build/upload_ftp.cpython-37m-x86_64-linux-gnu.so -T 5
-    wget -O $pluginPath/upload_alioss.so $download_Url/install/plugin/enterprise_backup/build/upload_alioss.cpython-37m-x86_64-linux-gnu.so -T 5
-    wget -O $pluginPath/upload_txcos.so $download_Url/install/plugin/enterprise_backup/build/upload_txcos.cpython-37m-x86_64-linux-gnu.so -T 5
-    wget -O $pluginPath/upload_qiniu.so $download_Url/install/plugin/enterprise_backup/build/upload_qiniu.cpython-37m-x86_64-linux-gnu.so -T 5
-    wget -O $pluginPath/upload_aws.so $download_Url/install/plugin/enterprise_backup/build/upload_aws.cpython-37m-x86_64-linux-gnu.so -T 5
+    btpip install oss2
+    btpip install qiniu
+    btpip install cos-python-sdk-v5
+    btpip install boto3
   else
     if [ "$pyVersion" == 2 ];then
       /usr/bin/pip install oss2
       /usr/bin/pip install qiniu
       /usr/bin/pip install cos-python-sdk-v5
       /usr/bin/pip install boto3
-      wget -O $pluginPath/enterprise_backup_main.so $download_Url/install/plugin/enterprise_backup/build/enterprise_backup_main.so -T 5
-      wget -O $pluginPath/backup_task.so $download_Url/install/plugin/enterprise_backup/build/backup_task.so -T 5
-      wget -O $pluginPath/upload_ftp.so $download_Url/install/plugin/enterprise_backup/build/upload_ftp.so -T 5
-      wget -O $pluginPath/upload_alioss.so $download_Url/install/plugin/enterprise_backup/build/upload_alioss.so -T 5
-      wget -O $pluginPath/upload_txcos.so $download_Url/install/plugin/enterprise_backup/build/upload_txcos.so -T 5
-      wget -O $pluginPath/upload_qiniu.so $download_Url/install/plugin/enterprise_backup/build/upload_qiniu.so -T 5
-      wget -O $pluginPath/upload_aws.so $download_Url/install/plugin/enterprise_backup/build/upload_aws.so -T 5
     else
       /usr/bin/pip3 install oss2
       /usr/bin/pip3 install qiniu
       /usr/bin/pip3 install cos-python-sdk-v5
       /usr/bin/pip3 install boto3
-      if [ "$py_zi" == 6 ];then
-        wget -O $pluginPath/enterprise_backup_main.so $download_Url/install/plugin/enterprise_backup/build/enterprise_backup_main.cpython-36m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/backup_task.so $download_Url/install/plugin/enterprise_backup/build/backup_task.cpython-36m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_ftp.so $download_Url/install/plugin/enterprise_backup/build/upload_ftp.cpython-36m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_alioss.so $download_Url/install/plugin/enterprise_backup/build/upload_alioss.cpython-36m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_txcos.so $download_Url/install/plugin/enterprise_backup/build/upload_txcos.cpython-36m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_qiniu.so $download_Url/install/plugin/enterprise_backup/build/upload_qiniu.cpython-36m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_aws.so $download_Url/install/plugin/enterprise_backup/build/upload_aws.cpython-36m-x86_64-linux-gnu.so -T 5
-      fi
-      if [ "$py_zi" == 7 ];then
-        wget -O $pluginPath/enterprise_backup_main.so $download_Url/install/plugin/enterprise_backup/build/enterprise_backup_main.cpython-37m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/backup_task.so $download_Url/install/plugin/enterprise_backup/build/backup_task.cpython-37m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_ftp.so $download_Url/install/plugin/enterprise_backup/build/upload_ftp.cpython-37m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_alioss.so $download_Url/install/plugin/enterprise_backup/build/upload_alioss.cpython-37m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_txcos.so $download_Url/install/plugin/enterprise_backup/build/upload_txcos.cpython-37m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_qiniu.so $download_Url/install/plugin/enterprise_backup/build/upload_qiniu.cpython-37m-x86_64-linux-gnu.so -T 5
-        wget -O $pluginPath/upload_aws.so $download_Url/install/plugin/enterprise_backup/build/upload_aws.cpython-37m-x86_64-linux-gnu.so -T 5
-      fi
     fi
   fi
 
-  grep "English" /www/server/panel/config/config.json
-  if [ "$?" -ne 0 ];then
-    wget -O $pluginPath/index.html $download_Url/install/plugin/enterprise_backup/index.html -T 5
-    wget -O $pluginPath/info.json $download_Url/install/plugin/enterprise_backup/info.json -T 5
-    wget -O $pluginPath/icon.png $download_Url/install/plugin/enterprise_backup/icon.png -T 5
-    wget -O $pluginPath/crontab_tasks/mysql_full_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/mysql_full_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/mysql_inc_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/mysql_inc_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/path_full_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/path_full_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/path_inc_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/path_inc_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/log_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/log_backup.py -T 5
-  else
-    wget -O $pluginPath/index.html $download_Url/install/plugin/enterprise_backup_en/index.html -T 5
-    wget -O $pluginPath/info.json $download_Url/install/plugin/enterprise_backup_en/info.json -T 5
-    wget -O $pluginPath/icon.png $download_Url/install/plugin/enterprise_backup_en/icon.png -T 5
-    wget -O $pluginPath/crontab_tasks/mysql_full_backup.py $download_Url/install/plugin/enterprise_backup_en/crontab_tasks/mysql_full_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/mysql_inc_backup.py $download_Url/install/plugin/enterprise_backup_en/crontab_tasks/mysql_inc_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/path_full_backup.py $download_Url/install/plugin/enterprise_backup_en/crontab_tasks/path_full_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/path_inc_backup.py $download_Url/install/plugin/enterprise_backup_en/crontab_tasks/path_inc_backup.py -T 5
-    wget -O $pluginPath/crontab_tasks/log_backup.py $download_Url/install/plugin/enterprise_backup_en/crontab_tasks/log_backup.py -T 5
-  fi
+  wget -O $pluginPath/enterprise_backup_main.so $download_Url/install/plugin/enterprise_backup/enterprise_backup_main.so -T 5
+  wget -O $pluginPath/backup_task.so $download_Url/install/plugin/enterprise_backup/backup_task.so -T 5
+  wget -O $pluginPath/enterprise_backup_main.cpython-36m-x86_64-linux-gnu.so $download_Url/install/plugin/enterprise_backup/enterprise_backup_main.cpython-36m-x86_64-linux-gnu.so -T 5
+  wget -O $pluginPath/backup_task.cpython-36m-x86_64-linux-gnu.so $download_Url/install/plugin/enterprise_backup/backup_task.cpython-36m-x86_64-linux-gnu.so -T 5
+  wget -O $pluginPath/enterprise_backup_main.cpython-37m-x86_64-linux-gnu.so $download_Url/install/plugin/enterprise_backup/enterprise_backup_main.cpython-37m-x86_64-linux-gnu.so -T 5
+  wget -O $pluginPath/backup_task.cpython-37m-x86_64-linux-gnu.so $download_Url/install/plugin/enterprise_backup/backup_task.cpython-37m-x86_64-linux-gnu.so -T 5
+
+  wget -O $pluginPath/upload_ftp.py $download_Url/install/plugin/enterprise_backup/upload_ftp.py -T 5
+  wget -O $pluginPath/upload_alioss.py $download_Url/install/plugin/enterprise_backup/upload_alioss.py -T 5
+  wget -O $pluginPath/upload_txcos.py $download_Url/install/plugin/enterprise_backup/upload_txcos.py -T 5
+  wget -O $pluginPath/upload_qiniu.py $download_Url/install/plugin/enterprise_backup/upload_qiniu.py -T 5
+  wget -O $pluginPath/upload_aws.py $download_Url/install/plugin/enterprise_backup/upload_aws.py -T 5
+  wget -O $pluginPath/index.html $download_Url/install/plugin/enterprise_backup/index.html -T 5
+  wget -O $pluginPath/info.json $download_Url/install/plugin/enterprise_backup/info.json -T 5
+  wget -O $pluginPath/icon.png $download_Url/install/plugin/enterprise_backup/icon.png -T 5
+  wget -O $pluginPath/crontab_tasks/mysql_full_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/mysql_full_backup.py -T 5
+  wget -O $pluginPath/crontab_tasks/mysql_inc_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/mysql_inc_backup.py -T 5
+  wget -O $pluginPath/crontab_tasks/path_full_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/path_full_backup.py -T 5
+  wget -O $pluginPath/crontab_tasks/path_inc_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/path_inc_backup.py -T 5
+  wget -O $pluginPath/crontab_tasks/log_backup.py $download_Url/install/plugin/enterprise_backup/crontab_tasks/log_backup.py -T 5
   \cp -a -r $pluginPath/icon.png /www/server/panel/BTPanel/static/img/soft_ico/ico-enterprise_backup.png
   echo '安装完成' > $install_tmp
 }

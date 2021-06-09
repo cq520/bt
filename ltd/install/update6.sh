@@ -1,5 +1,4 @@
 #!/bin/bash
-awk -v  num1=6.6 -v num2=5.5  'BEGIN{print(num1>num2)?"0":"1"}'
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 LANG=en_US.UTF-8
@@ -36,14 +35,15 @@ env_path=/www/server/panel/pyenv/bin/activate
 if [ -f $env_path ];then
 	mypip="/www/server/panel/pyenv/bin/pip"
 fi
-version=$(awk -v  versions=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version) -v num2=7.5.32 'BEGIN{print(versions>num2)?"7.5.33":"7.5.1"}')
 
 download_Url=$NODE_URL
 downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
 setup_path=/www
-
-
-
+#version=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version)
+version=$(awk -v  versions=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version) -v num2=7.6.19 'BEGIN{print(versions>num2)?"7.7.12":"7.6.0"}')
+# if [ "$version" = '' ];then
+# 	version='7.5.2'
+# fi
 
 wget -T 5 -O /tmp/panel.zip $downloads_Url/install/update/LinuxPanel-${version}.zip
 dsize=$(du -b /tmp/panel.zip|awk '{print $1}')

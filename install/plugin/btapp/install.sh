@@ -12,6 +12,15 @@ pluginPath=/www/server/panel/plugin/btapp
 
 Install_btapp()
 {
+  en=''
+  begin='正在安装脚本文件...'
+  end='安装完成'
+	grep "English" /www/server/panel/config/config.json >> /dev/null
+	if [ "$?" -eq 0 ];then
+		en='_en'
+		begin='Installing script file...'
+    end='The installation is complete'
+	fi
 	mypip="/www/server/panel/pyenv/bin/pip"
 	if [ -f $mypip ];then
 		$mypip install pycryptodome
@@ -19,14 +28,14 @@ Install_btapp()
 		pip install pycryptodome
 	fi
 	mkdir -p $pluginPath
-	echo '正在安装脚本文件...' > $install_tmp
-	wget -O $pluginPath/btapp_main.py $download_Url/install/plugin/btapp/btapp_main.py -T 5
-	wget -O $pluginPath/index.html $download_Url/install/plugin/btapp/index.html -T 5
-	wget -O $pluginPath/info.json $download_Url/install/plugin/btapp/info.json -T 5
-	wget -O $pluginPath/icon.png $download_Url/install/plugin/btapp/icon.png -T 5
-	wget -O $pluginPath/install.sh $download_Url/install/plugin/btapp/install.sh -T 5
+	echo $begin > $install_tmp
+	wget -O $pluginPath/btapp_main.py $download_Url/install/plugin/btapp$en/btapp_main.py -T 5
+	wget -O $pluginPath/index.html $download_Url/install/plugin/btapp$en/index.html -T 5
+	wget -O $pluginPath/info.json $download_Url/install/plugin/btapp$en/info.json -T 5
+	wget -O $pluginPath/icon.png $download_Url/install/plugin/btapp$en/icon.png -T 5
+	wget -O $pluginPath/install.sh $download_Url/install/plugin/btapp$en/install.sh -T 5
 	\cp -a -r /www/server/panel/plugin/btapp/icon.png /www/server/panel/BTPanel/static/img/soft_ico/ico-btapp.png
-	echo '安装完成' > $install_tmp
+	echo $end > $install_tmp
 }
 
 

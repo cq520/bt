@@ -8,6 +8,7 @@ if [ ! -f $public_file ];then
 fi
 . $public_file
 
+
 download_Url=$NODE_URL
 pluginPath=/www/server/panel/plugin/tamper_proof
 pyVersion=$(python -c 'import sys;print(sys.version_info[0]);')
@@ -22,33 +23,24 @@ Install_tamper_proof()
 	  /www/server/panel/pyenv/bin/pip install pyinotify
 		wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.cpython-37m-x86_64-linux-gnu.so -T 5
 	else
-	  pip install pyinotify
+	  	pip install pyinotify
 		if [ "$pyVersion" == 2 ];then
-        wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.so -T 5
+        	wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.so -T 5
 		else
 			if [ "$py_zi" == 6 ];then
-        wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.cpython-36m-x86_64-linux-gnu.so -T 5
+        		wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.cpython-36m-x86_64-linux-gnu.so -T 5
 			fi
 			if [ "$py_zi" == 7 ];then
-		    wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.cpython-37m-x86_64-linux-gnu.so -T 5
+		    	wget -O $pluginPath/tamper_proof_main.so $download_Url/install/plugin/tamper_proof/tamper_proof_main.cpython-37m-x86_64-linux-gnu.so -T 5
 			fi
 		fi
 	fi
-	wget -O $pluginPath/tamper_proof_lock.py $download_Url/install/plugin/tamper_proof/tamper_proof_lock.py -T 5
 	wget -O $pluginPath/tamper_proof_main.py $download_Url/install/plugin/tamper_proof/tamper_proof_main.py -T 5
-	wget -O $pluginPath/tamper_proof_init.py $download_Url/install/plugin/tamper_proof/tamper_proof_init.py -T 5
 	wget -O $pluginPath/tamper_proof_service.py $download_Url/install/plugin/tamper_proof/tamper_proof_service.py -T 5
 	wget -O $pluginPath/index.html $download_Url/install/plugin/tamper_proof/index.html -T 5
 	wget -O $pluginPath/config.json $download_Url/install/plugin/tamper_proof/config.json -T 5
 	wget -O $pluginPath/icon.png $download_Url/install/plugin/tamper_proof/icon.png -T 5
 	wget -O $pluginPath/info.json $download_Url/install/plugin/tamper_proof/info.json -T 5
-	#wget -O $pluginPath/install.sh $download_Url/install/plugin/tamper_proof/install.sh -T 5
-
-#	cd $pluginPath
-#        rm -f config.json icon.png index.html info.json install.sh tamper_proof_init.py tamper_proof_lock.py tamper_proof_main.cpython-34m.so tamper_proof_main.cpython-36m-x86_64-linux-gnu.so tamper_proof_main.py tamper_proof_main.so tamper_proof_service.py
-#	wget -O $pluginPath/tamper_proof.tar.gz $download_Url/install/plugin/tamper_proof/tamper_proof.tar.gz -T 5
-#	tar -zxf tamper_proof.tar.gz
-#	rm -f tamper_proof.tar.gz
 
 	siteJson=$pluginPath/sites.json
 	if [ ! -f $siteJson ];then
@@ -62,9 +54,10 @@ Install_tamper_proof()
 	chkconfig --level 2345 bt_tamper_proof on
 	check_fs
 	chown -R root.root $pluginPath
-        chmod -R 600 $pluginPath
+    chmod -R 600 $pluginPath
 	$initSh stop
 	$initSh start
+	rm -rf $pluginPath/sites
 	echo '安装完成' > $install_tmp
 }
 
@@ -87,11 +80,6 @@ Uninstall_tamper_proof()
 {
 	initSh=/etc/init.d/bt_tamper_proof
 	$initSh stop
-	sed -i 's/"lock": "1"/"lock": "4"/g' $pluginPath/sites.json
-	sed -i 's/"lock": "2"/"lock": "4"/g' $pluginPath/sites.json
-	sed -i 's/"lock": "3"/"lock": "4"/g' $pluginPath/sites.json
-	/usr/bin/python $pluginPath/tamper_proof_lock.py
-	echo "正在解锁锁定的文件"
 	update-rc.d bt_tamper_proof remove
 	chkconfig --del bt_tamper_proof
 	rm -rf $pluginPath

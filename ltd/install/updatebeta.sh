@@ -41,7 +41,7 @@ downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
 setup_path=/www
 #version=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version)
 if [ "$version" = '' ];then
-	version='7.6.10'
+	version='7.7.11'
 fi
 
 wget -T 5 -O /tmp/panel.zip $downloads_Url/install/update/LinuxPanel-${version}.zip

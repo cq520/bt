@@ -87,7 +87,7 @@ Install_ftq()
 		$ftq_server/sbin/usranalyse-disable
 		$ftq_server/sbin/usranalyse-enable
 	fi
-	# curl http://download.bt.cn/install/update6.sh|bash
+#	curl http://download.bt.cn/install/update6.sh|bash
 	bash /www/server/panel/init.sh start
 	echo > /www/server/panel/data/restart.pl
 	echo '安装完成' > $install_tmp 

@@ -2,8 +2,18 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 LANG=en_US.UTF-8
-cd ~
 
+if [ $(whoami) != "root" ];then
+	echo "请使用root权限执行宝塔安装命令！"
+	exit 1;
+fi
+
+is64bit=$(getconf LONG_BIT)
+if [ "${is64bit}" != '64' ];then
+	Red_Error "抱歉, 当前面板版本不支持32位系统, 请使用64位系统或安装宝塔5.9!";
+fi
+
+cd ~
 setup_path="/www"
 python_bin=$setup_path/server/panel/pyenv/bin/python
 cpu_cpunt=$(cat /proc/cpuinfo|grep processor|wc -l)
@@ -28,19 +38,12 @@ GetSysInfo(){
 	echo -e ${SYS_INFO}
 	echo -e "请截图以上报错信息发帖至论坛www.bt.cn/bbs求助"
 }
-
 Red_Error(){
 	echo '=================================================';
 	printf '\033[1;31;40m%b\033[0m\n' "$1";
 	GetSysInfo
 	exit 1;
 }
-
-is64bit=$(getconf LONG_BIT)
-if [ "${is64bit}" != '64' ];then
-	Red_Error "抱歉, 当前面板版本不支持32位系统, 请使用64位系统或安装宝塔5.9!";
-fi
-
 Lock_Clear(){
 	if [ -f "/etc/bt_crack.pl" ];then
 		chattr -R -ia /www
@@ -51,32 +54,30 @@ Lock_Clear(){
 	fi
 }
 Install_Check(){
-	while [ "$yes" != 'yes' ] && [ "$yes" != 'n' ]
-	do
-		echo -e "----------------------------------------------------"
-		echo -e "已有Web环境，安装宝塔可能影响现有站点"
-		echo -e "Web service is alreday installed,Can't install panel"
-		echo -e "----------------------------------------------------"
-		read -p "输入yes强制安装/Enter yes to force installation (yes/n): " yes;
-	done 
-	if [ "$yes" == 'n' ];then
+	if [ "${INSTALL_FORCE}" ];then
+		return
+	fi
+	echo -e "----------------------------------------------------"
+	echo -e "检查已有其他Web/mysql环境，安装宝塔可能影响现有站点及数据"
+	echo -e "Web/mysql service is alreday installed,Can't install panel"
+	echo -e "----------------------------------------------------"
+	echo -e "已知风险/Enter yes to force installation"
+	read -p "输入yes强制安装: " yes;
+	if [ "$yes" != "yes" ];then
+		echo -e "------------"
+		echo "取消安装"
 		exit;
 	fi
+	INSTALL_FORCE="true"
 }
 System_Check(){
-	for serviceS in nginx httpd mysqld
-	do
-		if [ -f "/etc/init.d/${serviceS}" ]; then
-			if [ "${serviceS}" = "httpd" ]; then
-				serviceCheck=$(cat /etc/init.d/${serviceS}|grep /www/server/apache)
-			elif [ "${serviceS}" = "mysqld" ]; then
-				serviceCheck=$(cat /etc/init.d/${serviceS}|grep /www/server/mysql)
-			else
-				serviceCheck=$(cat /etc/init.d/${serviceS}|grep /www/server/${serviceS})
-			fi
-			[ -z "${serviceCheck}" ] && Install_Check
-		fi
-	done
+	MYSQLD_CHECK=$(ps -ef |grep mysqld|grep -v grep|grep -v /www/server/mysql)
+	PHP_CHECK=$(ps -ef|grep php-fpm|grep master|grep -v /www/server/php)
+	NGINX_CHECK=$(ps -ef|grep nginx|grep master|grep -v /www/server/nginx)
+	HTTPD_CHECK=$(ps -ef |grep -E 'httpd|apache'|grep -v /www/server/apache|grep -v grep)
+	if [ "${PHP_CHECK}" ] || [ "${MYSQLD_CHECK}" ] || [ "${NGINX_CHECK}" ] || [ "${HTTPD_CHECK}" ];then
+		Install_Check
+	fi
 }
 Get_Pack_Manager(){
 	if [ -f "/usr/bin/yum" ] && [ -d "/etc/yum.repos.d" ]; then
@@ -85,7 +86,6 @@ Get_Pack_Manager(){
 		PM="apt-get"		
 	fi
 }
-
 Auto_Swap()
 {
 	swap=$(free |grep Swap|awk '{print $2}')
@@ -241,7 +241,10 @@ Install_RPM_Pack(){
 		dnf install -y redhat-rpm-config
 	fi
 
-	yum install epel-release -y
+	ALI_OS=$(cat /etc/redhat-release |grep "Alibaba Cloud Linux release 3")
+	if [ -z "${ALI_OS}" ];then 
+		yum install epel-release -y
+	fi
 }
 Install_Deb_Pack(){
 	ln -sf bash /bin/sh
@@ -259,8 +262,16 @@ Install_Deb_Pack(){
 	#echo 'Synchronizing system time...'
 	#ntpdate 0.asia.pool.ntp.org
 	#apt-get upgrade -y
-	for pace in wget curl libcurl4-openssl-dev gcc make zip unzip openssl libssl-dev gcc libxml2 libxml2-dev libxslt zlib1g zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev xz-utils git;
-	do apt-get -y install $pace --force-yes; done
+	debPacks="wget curl libcurl4-openssl-dev gcc make zip unzip tar openssl libssl-dev gcc libxml2 libxml2-dev zlib1g zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev xz-utils git";
+	apt-get install -y $debPacks --force-yes
+
+	for debPack in ${debPacks}
+	do
+		packCheck=$(dpkg -l ${debPack})
+		if [ "$?" -ne "0" ] ;then
+			apt-get install -y debPack
+		fi
+	done
 
 	if [ ! -d '/etc/letsencrypt' ];then
 		mkdir -p /etc/letsencryp
@@ -346,7 +357,6 @@ Install_Bt(){
 	wget -O /etc/init.d/bt ${download_Url}/install/src/bt7.init -T 10
 	wget -O /www/server/panel/init.sh ${download_Url}/install/src/bt7.init -T 10
 }
-
 Install_Python_Lib(){
 	curl -Ss --connect-timeout 3 -m 60 $download_Url/install/pip_select.sh|bash
 	pyenv_path="/www/server/panel"
@@ -395,7 +405,7 @@ Install_Python_Lib(){
 			echo "ERROR: Download python env fielded."
 		else
 			echo "Install python env..."
-			tar zxvf $pyenv_file -C $pyenv_path/ &> /dev/null
+			tar zxvf $pyenv_file -C $pyenv_path/ > /dev/null
 			chmod -R 700 $pyenv_path/pyenv/bin
 			if [ ! -f $pyenv_path/pyenv/bin/python ];then
 				rm -f $pyenv_file
@@ -456,7 +466,6 @@ Install_Python_Lib(){
 	$pyenv_path/pyenv/bin/pip install -r $pyenv_path/pyenv/pip.txt
 	source $pyenv_path/pyenv/bin/activate
 }
-
 Other_Openssl(){
 	openssl_version=$(openssl version|grep -Eo '[0-9]\.[0-9]\.[0-9]')
 	if [ "$openssl_version" = '1.0.1' ] || [ "$openssl_version" = '1.0.0' ];then	
@@ -486,7 +495,6 @@ Other_Openssl(){
 		fi
 	fi
 }
-
 Insatll_Libressl(){
 	openssl_version=$(openssl version|grep -Eo '[0-9]\.[0-9]\.[0-9]')
 	if [ "$openssl_version" = '1.0.1' ] || [ "$openssl_version" = '1.0.0' ];then	
@@ -513,7 +521,6 @@ Insatll_Libressl(){
 		cd ~
 	fi
 }
-
 Centos6_Openssl(){
 	if [ "$os_type" != 'el' ];then
 		return
@@ -533,7 +540,6 @@ Centos6_Openssl(){
 	rm -f $openssl_rpm_file
 	is_export_openssl=1
 }
-
 Get_Versions(){
 	redhat_version_file="/etc/redhat-release"
 	deb_version_file="/etc/issue"
@@ -576,7 +582,6 @@ Get_Versions(){
 		fi
 	fi
 }
-
 Set_Bt_Panel(){
 	password=$(cat /dev/urandom | head -n 16 | md5sum | head -c 8)
 	sleep 1
@@ -601,6 +606,10 @@ Set_Bt_Panel(){
 	LOCAL_CURL=$(curl 127.0.0.1:8888/login 2>&1 |grep -i html)
 	if [ -z "${isStart}" ] && [ -z "${LOCAL_CURL}" ];then
 		/etc/init.d/bt 22
+		cd /www/server/panel/pyenv/bin
+		touch t.pl
+		ls -al python3.7 python
+		lsattr python3.7 python
 		Red_Error "ERROR: The BT-Panel service startup failed."
 	fi
 }
@@ -609,7 +618,13 @@ Set_Firewall(){
 	if [ "${PM}" = "apt-get" ]; then
 		apt-get install -y ufw
 		if [ -f "/usr/sbin/ufw" ];then
-			ufw allow 888,20,21,22,80,${panelPort},${sshPort}/tcp
+			ufw allow 20/tcp
+			ufw allow 21/tcp
+			ufw allow 22/tcp
+			ufw allow 80/tcp
+			ufw allow 888/tcp
+			ufw allow ${panelPort}/tcp
+			ufw allow ${sshPort}/tcp
 			ufw allow 39000:40000/tcp
 			ufw_status=`ufw status`
 			echo y|ufw enable
@@ -698,7 +713,6 @@ Setup_Count(){
 	fi
 	echo /www > /var/bt_setupPath.conf
 }
-
 Install_Main(){
 	startTime=`date +%s`
 	Lock_Clear
@@ -764,5 +778,4 @@ echo -e "=================================================================="
 endTime=`date +%s`
 ((outTime=($endTime-$startTime)/60))
 echo -e "Time consumed:\033[32m $outTime \033[0mMinute!"
-
 
