@@ -304,6 +304,9 @@ install_static()
 
 Install_btwaf()
 { 
+	if [ -f /www/server/btwaf/httpd.lua ];then
+		rm -rf /www/server/btwaf
+	fi
 	en=''
 	grep "English" /www/server/panel/config/config.json >> /dev/null
 	if [ "$?" -eq 0 ];then
@@ -424,7 +427,10 @@ Install_btwaf()
 	mkdir -p $btwaf_path/html
 	rm -rf /www/server/btwaf/cms
 	mv /tmp/btwaf/cms/  $btwaf_path
-	
+	openrestyCheck=$(cat /www/server/nginx/version_check.pl |grep openresty-1.19)
+	if [ "${openrestyCheck}" ];then
+	        ln -s /www/server/nginx/lualib/resty /www/server/btwaf
+	fi
 	if [ ! -f $btwaf_path/html/url.html ];then
 		\cp -a -r /tmp/btwaf/html/url.html $btwaf_path/html/url.html
 		\cp -a -r /tmp/btwaf/html/ip.html $btwaf_path/html/ip.html
@@ -462,6 +468,12 @@ Install_btwaf()
 		\cp -a -r /tmp/btwaf/6.json $btwaf_path/6.json
 		\cp -a -r /tmp/btwaf/zhi.json $btwaf_path/zhi.json
 	fi
+	\cp -a -r /tmp/btwaf/1.json $btwaf_path/1.json
+	\cp -a -r /tmp/btwaf/2.json $btwaf_path/2.json
+	\cp -a -r /tmp/btwaf/3.json $btwaf_path/3.json
+	\cp -a -r /tmp/btwaf/4.json $btwaf_path/4.json
+	\cp -a -r /tmp/btwaf/5.json $btwaf_path/5.json
+	\cp -a -r /tmp/btwaf/6.json $btwaf_path/6.json
 	\cp -a -r /tmp/btwaf/7.json $btwaf_path/7.json
 	\cp -a -r /tmp/btwaf/zhi.json $btwaf_path/zhi.json
 	if [ ! -f $btwaf_path/webshell.json ];then
@@ -509,7 +521,7 @@ Install_btwaf()
 	fi
 	\cp -a -r /tmp/btwaf/zhi.lua $btwaf_path/zhi.lua
 	if [ ! -b /www/server/btwaf/captcha/num2.json ];then
-		\cp -a -r /tmp/btwaf/10.57.lua $btwaf_path/init.lua
+		\cp -a -r /tmp/btwaf/10.59.lua $btwaf_path/init.lua
 		
 	else 
 		\cp -a -r /tmp/btwaf/8.8.lua $btwaf_path/init.lua
@@ -561,8 +573,9 @@ Install_btwaf()
 	fi
 	#Install_sqlite3_for_nginx
 	chown www:www /www/server/btwaf/totla_db/totla_db.db
-	
-
+	if [ -n "$Centos6Check" ]; then
+		\cp -a -r /tmp/btwaf/centos6.lua $btwaf_path/init.lua
+	fi
 	/etc/init.d/nginx restart
 	sleep 2
 	para5=$(ps -aux |grep nginx |grep  /www/server/nginx/conf/nginx.conf | awk 'NR==2')
@@ -572,7 +585,7 @@ Install_btwaf()
 	sleep 2
 	para1=$(ps -aux |grep nginx |grep  /www/server/nginx/conf/nginx.conf | awk 'NR==2')
 	parc2=$(netstat -nltp|grep nginx| grep 80|wc -l)
-	
+
 	if [ ! -n "$para1" ]; then 
 		if [ $parc2 -eq 0 ]; then 
 			rm -f /usr/local/lib/lua/5.1/cjson.so
@@ -582,7 +595,7 @@ Install_btwaf()
 			Install_LuaJIT
 			Install_sqlite3_for_nginx
 			luarocks install lua-cjson
-			\cp -a -r /tmp/btwaf/10.56.lua $btwaf_path/init.lua
+			\cp -a -r /tmp/btwaf/10.59.lua $btwaf_path/init.lua
 			/etc/init.d/nginx restart
 			para1=$(ps -aux |grep nginx |grep  /www/server/nginx/conf/nginx.conf | awk 'NR==2')
 			parc2=$(netstat -nltp|grep nginx| grep 80|wc -l)
@@ -598,6 +611,8 @@ Install_btwaf()
 	rm -rf /tmp/btwaf
 	chmod 755 /www/server/btwaf/rule
 	chmod 755 /www/server/btwaf/
+	chown www:www -R /www/server/btwaf/totla_db/
+	chown www:www -R /www/server/btwaf/total/
 	bash /www/server/panel/init.sh start
 	echo > /www/server/panel/data/restart.pl
 	echo '安装完成' > $install_tmp
@@ -667,12 +682,6 @@ Upload_btwaf()
 		\cp -a -r /tmp/btwaf/rule/url_white.json $btwaf_path/rule/url_white.json
 		\cp -a -r /tmp/btwaf/rule/user_agent.json $btwaf_path/rule/user_agent.json
 		\cp -a -r /tmp/btwaf/rule/cc_uri_white.json $btwaf_path/rule/cc_uri_white.json 
-		\cp -a -r /tmp/btwaf/1.json $btwaf_path/1.json
-		\cp -a -r /tmp/btwaf/2.json $btwaf_path/2.json
-		\cp -a -r /tmp/btwaf/3.json $btwaf_path/3.json
-		\cp -a -r /tmp/btwaf/4.json $btwaf_path/4.json
-		\cp -a -r /tmp/btwaf/5.json $btwaf_path/5.json
-		\cp -a -r /tmp/btwaf/6.json $btwaf_path/6.json
 		\cp -a -r /tmp/btwaf/zhi.json $btwaf_path/zhi.json
 	fi
 	

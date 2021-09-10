@@ -15,11 +15,15 @@ pluginPath=/www/server/panel/plugin/btwaf_httpd
 pyVersion=$(python -c 'import sys;print(sys.version_info[0]);')
 py_zi=$(python -c 'import sys;print(sys.version_info[1]);')
 aacher=$(uname -a |grep -Po aarch64|awk 'NR==1')
-
+lua_version=`lua -e "print( _G._VERSION )"`
+lua_ver=${lua_version: -1}
 
 Install_btwaf_httpd()
 {	
 	
+	if [ -f /www/server/btwaf/init.lua ];then
+		rm -rf /www/server/btwaf
+	fi
 	mkdir -p /www/server/btwaf
 	Install_cjson
 	Install_socket
@@ -56,7 +60,7 @@ Install_btwaf_httpd()
 		fi
 	else
 		if [  -f /www/server/panel/pyenv/bin/python ];then
-			wget -O $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip $download_Url/install/plugin/btwaf_httpd/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip -T 5
+			wget -O $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip $download_Url/install/plugin/btwaf_httpd/8.2/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip -T 5
 			unzip -o $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip -d $pluginPath > /dev/null
 			rm -rf $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip
 		else
@@ -76,26 +80,26 @@ Install_btwaf_httpd()
 					rm -rf $pluginPath/btwaf_httpd_main.cpython-34m.zip
 				fi
 				if [ "$py_zi" == 7 ];then 
-					wget -O $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip $download_Url/install/plugin/btwaf_httpd/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip -T 5
+					wget -O $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip $download_Url/install/plugin/btwaf_httpd/8.2/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip -T 5
 					unzip -o $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip -d $pluginPath > /dev/null
 					rm -rf $pluginPath/btwaf_httpd_main.cpython-37m-x86_64-linux-gnu.zip
 				fi
 			fi
 		fi
 	fi
-	wget -O $pluginPath/btwaf_httpd_main.zip $download_Url/install/plugin/btwaf_httpd/btwaf_httpd_main.zip -T 5
+	wget -O $pluginPath/btwaf_httpd_main.zip $download_Url/install/plugin/btwaf_httpd/8.2/btwaf_httpd_main.zip -T 5
 	unzip -o $pluginPath/btwaf_httpd_main.zip -d $pluginPath > /dev/null
 	rm -rf $pluginPath/btwaf_httpd_main.zip
 	
 	wget -O $pluginPath/firewalls_list.py $download_Url/install/plugin/btwaf_httpd/firewalls_list.py -T 5
-	wget -O $pluginPath/index.html $download_Url/install/plugin/btwaf_httpd/index.html -T 5
+	wget -O $pluginPath/index.html $download_Url/install/plugin/btwaf_httpd/8.2/index.html -T 5
 	wget -O $pluginPath/info.json $download_Url/install/plugin/btwaf_httpd/info.json -T 5
 	wget -O $pluginPath/icon.png $download_Url/install/plugin/btwaf_httpd/icon.png -T 5
 	chattr -i /www/server/panel/vhost/apache/btwaf.conf
 	rm -rf /www/server/panel/vhost/apache/btwaf.conf
 	wget -O /www/server/panel/vhost/apache/btwaf.conf $download_Url/install/plugin/btwaf_httpd/btwaf.conf -T 5
 	\cp -a -r /www/server/panel/plugin/btwaf_httpd/icon.png /www/server/panel/static/img/soft_ico/ico-btwaf_httpd.png
-	wget -O $pluginPath/btwaf.zip $download_Url/install/plugin/btwaf_httpd/btwaf.zip -T 5
+	wget -O $pluginPath/btwaf.zip $download_Url/install/plugin/btwaf_httpd/8.2/btwaf.zip -T 5
 	unzip -o $pluginPath/btwaf.zip -d /tmp/ > /dev/null
 	\cp -a -r /tmp/btwaf/rule/referer.json /www/server/btwaf/rule/referer.json
 	rm -f $pluginPath/btwaf.zip
@@ -133,6 +137,18 @@ Install_btwaf_httpd()
 		\cp -a -r /tmp/btwaf/rule/cc_uri_white.json $btwaf_httpd_path/rule/cc_uri_white.json
 	fi
 	
+	if [ ! -f /www/server/btwaf/total.json ];then
+		\cp -a -r /tmp/btwaf/total.json /www/server/btwaf/total.json
+	fi
+	
+	if [ ! -f /www/server/btwaf/site.json ];then
+		\cp -a -r /tmp/btwaf/site.json /www/server/btwaf/site.json
+	fi
+	
+	if [ ! -f /www/server/btwaf/config.json ];then
+		\cp -a -r /tmp/btwaf/config.json /www/server/btwaf/config.json
+	fi
+	
 	if [ ! -f /dev/shm/stop_ip.json ];then
 		\cp -a -r /tmp/btwaf/stop_ip.json /dev/shm/stop_ip.json
 	fi
@@ -141,21 +157,32 @@ Install_btwaf_httpd()
 	chown www:www /dev/shm/stop_ip.json
 	
 	
-	for fileName in 1 2 3 4 5 6 zhi site config total
+	for fileName in 1 2 3 4 5 6 7 zhi
 	do
-		if [ ! -f $btwaf_httpd_path/${fileName}.json ];then
-			\cp -a -r /tmp/btwaf/${fileName}.json $btwaf_httpd_path/${fileName}.json
-		fi
+		
+		\cp -a -r /tmp/btwaf/${fileName}.json $btwaf_httpd_path/${fileName}.json
+
 	done
 	
 	if [ ! -f $btwaf_httpd_path/drop_ip.log ];then
 		\cp -a -r /tmp/btwaf/drop_ip.log $btwaf_httpd_path/drop_ip.log
 	fi
 
-	\cp -a -r /tmp/btwaf/8.1.lua $btwaf_httpd_path/httpd.lua
+	\cp -a -r /tmp/btwaf/8.4.lua $btwaf_httpd_path/httpd.lua
+	\cp -a -r /tmp/btwaf/zhi.lua $btwaf_httpd_path/zhi.lua
+	echo $lua_ver
+	if [ $lua_ver -eq 1 ];then 
+	    \cp -a -r /tmp/btwaf/mycomplib.so $btwaf_httpd_path/mycomplib.so
+	elif [ $lua_ver -eq 2 ];then 
+	    \cp -a -r /tmp/btwaf/mycomplib.so $btwaf_httpd_path/mycomplib.so
+	elif [ $lua_ver -eq 3 ];then    
+	 \cp -a -r /tmp/btwaf/mycomplib_5.3.so $btwaf_httpd_path/mycomplib.so
+	elif [ $lua_ver -eq 4 ];then    
+	  \cp -a -r /tmp/btwaf/mycomplib_5.3.so $btwaf_httpd_path/mycomplib.so
+	fi
 	\cp -a -r /tmp/btwaf/memcached.lua $btwaf_httpd_path/memcached.lua
 	\cp -a -r /tmp/btwaf/CRC32.lua $btwaf_httpd_path/CRC32.lua
-	
+	\cp -a -r /tmp/btwaf/multipart.lua $btwaf_httpd_path/multipart.lua
 	chmod +x $btwaf_httpd_path/httpd.lua
 	chmod +x $btwaf_httpd_path/memcached.lua
 	chmod +x $btwaf_httpd_path/CRC32.lua
@@ -190,7 +217,8 @@ Install_cjson()
 	fi
 	
 	Centos8Check=$(cat /etc/redhat-release | grep ' 8.' | grep -iE 'centos|Red Hat')
-	if [ "${Centos8Check}" ];then
+	CentosStream8Check=$(cat /etc/redhat-release|grep -i "Centos Stream"|grep 8)
+	if [ "${Centos8Check}" ] || [ "${CentosStream8Check}" ];then
 		wget -O lua-5.3-cjson.tar.gz $download_Url/src/lua-5.3-cjson.tar.gz -T 20
 		tar -xvf lua-5.3-cjson.tar.gz
 		cd lua-5.3-cjson
@@ -255,6 +283,11 @@ Install_socket()
 		ln -sf /usr/local/share/lua/5.1/socket.lua /usr/share/lua/5.1/socket.lua
 		ln -sf /usr/local/share/lua/5.1/socket /usr/share/lua/5.1/socket
 	fi
+	if [ ! -d /www/server/btwaf/socket.lua ]; then
+		ln -sf /usr/local/share/lua/5.1/socket.lua /www/server/btwaf/socket.lua
+		#ln -sf /usr/local/share/lua/5.1/socket /www/server/btwaf/socket
+	fi
+	
 }
 
 Install_mod_lua()
@@ -291,7 +324,6 @@ Install_mod_lua()
 Uninstall_btwaf_httpd()
 {
 	chattr -i /www/server/panel/vhost/apache/btwaf.conf
-	rm -rf /www/server/btwaf
 	rm -f /www/server/panel/vhost/apache/btwaf.conf
 	rm -rf $pluginPath
 	/etc/init.d/httpd reload

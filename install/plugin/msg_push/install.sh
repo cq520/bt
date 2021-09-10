@@ -23,6 +23,7 @@ Install_MsgPush()
 	/usr/bin/pip install requests prettytable
 	echo '正在安装脚本文件...' > $install_tmp
 	wget -O $pluginPath/msg_push_main.py $download_Url/install/plugin/msg_push/msg_push_main.py -T 5
+	wget -O $pluginPath/msg_push $download_Url/install/plugin/msg_push/msg_push -T 5
 	wget -O $pluginPath/index.html $download_Url/install/plugin/msg_push/index.html -T 5
 	wget -O $pluginPath/info.json $download_Url/install/plugin/msg_push/info.json -T 5
 	wget -O $pluginPath/icon.png $download_Url/install/plugin/msg_push/icon.png -T 5

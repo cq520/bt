@@ -11,6 +11,11 @@ fi
 download_Url=$NODE_URL
 pluginPath=/www/server/panel/plugin/syssafe
 
+python_bin='python'
+if [ -f /www/server/panel/pyenv/bin/python ];then
+    python_bin='/www/server/panel/pyenv/bin/python'
+fi
+
 Install_syssafe()
 {
 	mkdir -p $pluginPath
@@ -42,7 +47,6 @@ Install_syssafe()
 
 Uninstall_syssafe()
 {
-	python /www/server/panel/plugin/syssafe/syssafe_main.py 0
 	initSh=/etc/init.d/bt_syssafe
 	$initSh stop
 	if [ -f "/usr/bin/apt-get" ];then
@@ -50,7 +54,7 @@ Uninstall_syssafe()
 	else
 		chkconfig --del bt_syssafe
 	fi
-	python $pluginPath/syssafe_main.py 0
+	$python_bin $pluginPath/syssafe_main.py 0
 	rm -rf $pluginPath
 	rm -f $initSh
 }

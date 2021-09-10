@@ -37,13 +37,15 @@ if [ -f $env_path ];then
 fi
 
 download_Url=$NODE_URL
-downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
+downloads_Url=https://raw.githubusercontent.com/cq520/bt/master//ltd
 setup_path=/www
 #version=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version)
-version=$(awk -v  versions=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version) -v num2=7.6.19 'BEGIN{print(versions>num2)?"7.7.12":"7.6.0"}')
-# if [ "$version" = '' ];then
-# 	version='7.5.2'
-# fi
+##动态选择
+## version=$(awk -v  versions=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version) -v num2=7.6.19 'BEGIN{print(versions>num2)?"7.7.12":"7.6.0"}')
+##
+if [ "$version" = '' ];then
+	version='7.7.0'
+fi
 
 wget -T 5 -O /tmp/panel.zip $downloads_Url/install/update/LinuxPanel-${version}.zip
 dsize=$(du -b /tmp/panel.zip|awk '{print $1}')

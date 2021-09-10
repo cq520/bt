@@ -44,18 +44,18 @@ Install()
   echo '正在安装脚本文件...' > $install_tmp
   if [  -f /www/server/panel/pyenv/bin/python ];then
     btpip install oss2
-    btpip install qiniu
+    btpip install qiniu==7.4.1 -I
     btpip install cos-python-sdk-v5
     btpip install boto3
   else
     if [ "$pyVersion" == 2 ];then
       /usr/bin/pip install oss2
-      /usr/bin/pip install qiniu
+      /usr/bin/pip install qiniu==7.4.1 -I
       /usr/bin/pip install cos-python-sdk-v5
       /usr/bin/pip install boto3
     else
       /usr/bin/pip3 install oss2
-      /usr/bin/pip3 install qiniu
+      /usr/bin/pip3 install qiniu==7.4.1 -I
       /usr/bin/pip3 install cos-python-sdk-v5
       /usr/bin/pip3 install boto3
     fi

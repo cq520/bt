@@ -36,14 +36,16 @@ Install_load_balance()
   wget -O /www/server/panel/plugin/load_balance/info.json $download_Url/install/plugin/load_balance/info.json -T 5
   wget -O /www/server/panel/plugin/load_balance/icon.png $download_Url/install/plugin/load_balance/icon.png -T 5
   wget -O /www/server/panel/vhost/nginx/load_total.lua $download_Url/install/plugin/load_balance/load_total.lua -T 5
-
   \cp -a -r /www/server/panel/plugin/load_balance/icon.png /www/server/panel/BTPanel/static/img/soft_ico/ico-load_balance.png
+  echo "lua_shared_dict load_total 10m;" > /www/server/panel/vhost/nginx/load_balance_shared.conf
   echo '安装完成' > $install_tmp
 }
 
 Uninstall_load_balance()
 {
   rm -rf /www/server/panel/plugin/load_balance
+  rm -f /www/server/panel/vhost/nginx/load_balance_shared.conf
+  echo > /www/server/panel/vhost/nginx/load_total.lua
 }
 
 action=$1

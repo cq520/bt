@@ -116,7 +116,7 @@ Install_tamper_proof()
 		chmod -R 666 $pluginPath
 		$initSh stop
 		$initSh start
-#		curl http://download.bt.cn/install/update6.sh|bash
+		#curl http://download.bt.cn/install/update6.sh|bash
 		bash /www/server/panel/init.sh start
 		echo > /www/server/panel/data/restart.pl
 		echo '安装完成' > $install_tmp

@@ -173,7 +173,7 @@ get_node_url(){
 	rm -f $tmp_file1
 	rm -f $tmp_file2
 	download_Url=$NODE_URL
-	downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/pro
+	downloads_Url=https://raw.githubusercontent.com/cq520/bt/master//pro
 	echo "Download node: $download_Url";
 	echo '---------------------------------------------';
 }
