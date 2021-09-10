@@ -37,7 +37,7 @@ if [ -f $env_path ];then
 fi
 
 download_Url=$NODE_URL
-downloads_Url=https://raw.githubusercontent.com/cq520/bt/master//ltd
+downloads_Url=https://raw.githubusercontent.com/cq520/bt/master/ltd
 setup_path=/www
 #version=$(curl -Ss --connect-timeout 5 -m 2 http://www.bt.cn/api/panel/get_version)
 ##动态选择

@@ -27,9 +27,9 @@ Install_xz()
 		download_Url=$NODE_URL
 		mkdir -p /www/server/php/$version/src
 		if [ "$version" -lt '60' ];then
-		wget -O $version-ext.tar.gz https://raw.githubusercontent.com/cq520/bt/master//install/phpxz/56ext.tar.gz
+		wget -O $version-ext.tar.gz https://raw.githubusercontent.com/cq520/bt/master/install/phpxz/56ext.tar.gz
 		else
-		wget -O $version-ext.tar.gz https://raw.githubusercontent.com/cq520/bt/master//install/phpxz/ext.tar.gz
+		wget -O $version-ext.tar.gz https://raw.githubusercontent.com/cq520/bt/master/install/phpxz/ext.tar.gz
 		fi
 		tar -zxf $version-ext.tar.gz -C /www/server/php/$version/src/ 
 		rm -f $version-ext.tar.gz
